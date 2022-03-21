@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "testmoon-50ea"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "testmoon-50ea"
+  template:
+    metadata:
+      labels:
+        app: "testmoon-50ea"
+    spec:
+      containers:
+        - name: "testmoon-50ea"
+          image: "testmoonacr.azurecr.io/testmoon"
+          ports:
+          - containerPort: 80
