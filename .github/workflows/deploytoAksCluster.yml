@@ -1,0 +1,50 @@
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: testmoonacr.azurecr.io
+        username: ${{ secrets.acr_testmoonacr_username }}
+        password: ${{ secrets.acr_testmoonacr_password }}
+    
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/azure-vote" -f  "azure-vote/Dockerfile" -t testmoonacr.azurecr.io/testmoon:${{ github.sha }} --label dockerfile-path=azure-vote/Dockerfile
+        docker push testmoonacr.azurecr.io/testmoon:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
+      with:
+         kubeconfig: ${{ secrets.aks_testmoon_kubeConfig }}
+      id: login
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep testmoon2171 | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace testmoon2171`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: testmoon2171
+        container-registry-url: testmoonacr.azurecr.io
+        container-registry-username: ${{ secrets.acr_testmoonacr_username }}
+        container-registry-password: ${{ secrets.acr_testmoonacr_password }}
+        secret-name: testmoondockerauth
+       
+    - uses: azure/k8s-deploy@v1.2
+      with:
+        namespace: testmoon2171
+        manifests: |
+          manifests/deployment.yml
+          manifests/service.yml
+        images: |
+          testmoonacr.azurecr.io/testmoon:${{ github.sha }}
+        imagepullsecrets: |
+          testmoondockerauth
