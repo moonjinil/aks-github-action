@@ -15,5 +15,15 @@ spec:
       containers:
         - name: "azure-vote-front"
           image: "testmoonacr.azurecr.io/testmoon"
+          resources:
+           requests:
+            cpu: 100m
+            memory: 128Mi
+           limits:
+            cpu: 250m
+            memory: 256Mi
           ports:
           - containerPort: 80
+          env:
+          - name: REDIS
+            value: "azure-vote-back"
