@@ -1,19 +1,19 @@
 apiVersion : apps/v1
 kind: Deployment
 metadata:
-  name: "testmoon-50ea"
+  name: "azure-vote-front"
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: "testmoon-50ea"
+      app: "azure-vote-front"
   template:
     metadata:
       labels:
-        app: "testmoon-50ea"
+        app: "azure-vote-front"
     spec:
       containers:
-        - name: "testmoon-50ea"
+        - name: "azure-vote-front"
           image: "testmoonacr.azurecr.io/testmoon"
           ports:
           - containerPort: 80
