@@ -5,7 +5,7 @@ metadata:
     labels:
         app: "azure-vote-front"
 spec:
-    type: LoadBalancer
+    type: ClusterIP
     ports:
     - port: 80
       targetPort: 80
